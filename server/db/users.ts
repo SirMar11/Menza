@@ -19,6 +19,8 @@ export async function createUser(
     hash,
     token,
   });
+
+  return token;
 }
 
 export async function findUserByToken(
