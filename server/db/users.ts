@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { users } from './schema.js';
 
@@ -43,4 +43,19 @@ export async function verifyPassword(
     .toString('hex');
 
   return hash === user.hash ? user : null;
+}
+
+export async function topUp(
+  db: BetterSQLite3Database<any>,
+  userId: number,
+  amount: number
+) {
+  if (amount <= 0) {
+    throw new Error('Částka musí být kladná');
+  }
+
+  await db
+    .update(users)
+    .set({ balance: sql`${users.balance} + ${amount}` })
+    .where(eq(users.id, userId));
 }
