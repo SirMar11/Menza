@@ -13,6 +13,7 @@ export function useOrderNotifications() {
   useEffect(() => {
     let ws: WebSocket;
     let reconnectTimer: ReturnType<typeof setTimeout>;
+    // Příznak brání reconnectu při záměrném zavření (cleanup, React StrictMode double-mount)
     let intentionallyClosed = false;
 
     const connect = () => {
@@ -26,11 +27,12 @@ export function useOrderNotifications() {
           const notification: OrderNotification = { id: Date.now(), ...data };
           setNotifications((prev) => [...prev, notification]);
 
+          // Automaticky odstraní notifikaci po 4,5 sekundách
           setTimeout(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
           }, 4500);
         } catch {
-          // ignore malformed messages
+          // Ignorujeme malformed zprávy ze serveru
         }
       };
 

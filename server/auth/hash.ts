@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 
+// 100 000 iterací záměrně zpomaluje výpočet — útočník musí každý pokus opakovat 100k×
 export function hashPassword(password: string) {
   const salt = crypto.randomBytes(32).toString('hex');
   const hash = crypto.pbkdf2Sync(password, salt, 100_000, 64, 'sha512').toString('hex');

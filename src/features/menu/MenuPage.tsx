@@ -23,8 +23,10 @@ export function MenuPage() {
   const queryClient = useQueryClient();
   const [day, setDay] = useState(getCurrentDay());
   const [tag, setTag] = useState('');
+  // Inline chybová hláška po neúspěšném nákupu (místo alert())
   const [buyError, setBuyError] = useState<string | null>(null);
 
+  // Zjistíme přihlášení — sdílená cache ['me'] s UserPage, žádný extra request
   const { data: user } = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
@@ -35,6 +37,7 @@ export function MenuPage() {
     retry: false,
   });
 
+  // Jídla se refetchují při každé změně filtru díky queryKey
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['menu', day, tag],
     queryFn: async () => {
@@ -50,7 +53,7 @@ export function MenuPage() {
       if (!res.ok) throw new Error(data.error);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['me'] }); // refresh kreditu v UserPage
       setBuyError(null);
     },
     onError: (e: Error) => setBuyError(e.message),
@@ -58,6 +61,7 @@ export function MenuPage() {
 
   return (
     <div className="space-y-4">
+      {/* Filtr dní */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         {DAYS.map((d) => (
           <button
@@ -72,6 +76,7 @@ export function MenuPage() {
         ))}
       </div>
 
+      {/* Filtr štítků */}
       <div className="flex gap-2 flex-wrap">
         {TAGS.map((t) => (
           <button
@@ -88,6 +93,7 @@ export function MenuPage() {
         ))}
       </div>
 
+      {/* Chyba nákupu */}
       {buyError && (
         <div className="flex items-center justify-between bg-danger/8 border border-danger/20 rounded-lg px-4 py-2.5 text-sm text-danger">
           <span>{buyError}</span>
@@ -95,6 +101,7 @@ export function MenuPage() {
         </div>
       )}
 
+      {/* Loading skeleton */}
       {isLoading && (
         <div className="space-y-3">
           {[1, 2, 3].map((n) => (
@@ -106,6 +113,7 @@ export function MenuPage() {
         </div>
       )}
 
+      {/* Prázdný stav */}
       {!isLoading && items.length === 0 && (
         <div className="text-center py-12 text-muted">
           <p className="text-4xl mb-3">🍽️</p>
@@ -114,6 +122,7 @@ export function MenuPage() {
         </div>
       )}
 
+      {/* Seznam jídel */}
       <div className="space-y-3">
         {items.map((item) => (
           <MenuItemCard

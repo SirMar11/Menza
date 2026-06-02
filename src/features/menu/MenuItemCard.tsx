@@ -36,6 +36,7 @@ export function MenuItemCard({ item, onBuy, buyPending, isLoggedIn }: Props) {
           )}
         </div>
 
+        {/* Cena + akce — nepřihlášený uživatel vidí výzvu místo tlačítka */}
         <div className="flex flex-col items-end gap-2 shrink-0">
           <span className="text-primary font-bold text-lg">{item.price} Kč</span>
           {isLoggedIn ? (

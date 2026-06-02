@@ -9,6 +9,8 @@ export async function placeOrder(db: AppDb, userId: number, menuItemId: number) 
   if (!user || !item) throw new Error('Uživatel nebo jídlo nenalezeno');
   if (user.balance < item.price) throw new Error('Nedostatek kreditu');
 
+  // Transakce zajistí atomičnost — pokud INSERT selže, UPDATE balance se automaticky vrátí zpět
+  // .run() je nutné místo await, protože better-sqlite3 je synchronní driver
   db.transaction((tx) => {
     tx.update(users)
       .set({ balance: sql`${users.balance} - ${item.price}` })

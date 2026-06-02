@@ -1,5 +1,6 @@
 import type { WSContext } from 'hono/ws';
 
+// Set automaticky deduplicuje spojení a nabízí O(1) přidání/odebrání
 const clients = new Set<WSContext>();
 
 export function addClient(ws: WSContext) {
@@ -16,6 +17,7 @@ export function broadcast(payload: { type: string; xname: string; itemName: stri
     try {
       client.send(json);
     } catch {
+      // Mrtvé spojení — klient se odpojil bez čistého close eventu, odebereme ho
       clients.delete(client);
     }
   }

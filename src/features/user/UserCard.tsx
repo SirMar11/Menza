@@ -6,6 +6,7 @@ type User = { id: number; xname: string; balance: number };
 export function UserCard({ user }: { user: User }) {
   const queryClient = useQueryClient();
 
+  // Odhlášení vymaže cache ['me'] i ['orders'] — UserPage přepne zpět na AuthForm
   const logout = useMutation({
     mutationFn: async () => { await client.auth.logout.$post({}); },
     onSuccess: () => {
@@ -17,6 +18,7 @@ export function UserCard({ user }: { user: User }) {
   return (
     <div className="bg-surface rounded-xl shadow-card p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
+        {/* Avatar — první písmeno xname jako fallback místo profilové fotky */}
         <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xl font-bold select-none">
           {user.xname.charAt(0).toUpperCase()}
         </div>

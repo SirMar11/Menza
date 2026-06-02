@@ -5,6 +5,7 @@ export const users = sqliteTable('users', {
   xname: text('xname').notNull().unique(),
   salt: text('salt').notNull(),
   hash: text('hash').notNull(),
+  // null = odhlášen; generuje se při registraci/přihlášení
   token: text('token').unique(),
   balance: real('balance').notNull().default(0),
 });
@@ -15,17 +16,15 @@ export const menuItems = sqliteTable('menu_items', {
   description: text('description'),
   price: real('price').notNull(),
   dayOfWeek: text('day_of_week').notNull(),
+  // SQLite nemá nativní pole — tagy ukládáme jako JSON string, např. '["vegan","bez-lepku"]'
   tags: text('tags').notNull().default('[]'),
 });
 
 export const orders = sqliteTable('orders', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  userId: integer('user_id')
-    .notNull()
-    .references(() => users.id),
-  menuItemId: integer('menu_item_id')
-    .notNull()
-    .references(() => menuItems.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  menuItemId: integer('menu_item_id').notNull().references(() => menuItems.id),
   pricePaid: real('price_paid').notNull(),
+  // Unix timestamp v sekundách (Date.now() / 1000)
   createdAt: integer('created_at').notNull(),
 });

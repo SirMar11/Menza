@@ -7,6 +7,7 @@ import { useOrderNotifications } from './hooks/useOrderNotifications';
 
 const queryClient = new QueryClient();
 
+// Tlačítko v headeru — přepíná light/dark mód
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
   return (
@@ -21,6 +22,7 @@ function ThemeToggle() {
   );
 }
 
+// Real-time toast notifikace v pravém dolním rohu — příchozí WS zprávy
 function NotificationStack() {
   const { notifications, dismiss } = useOrderNotifications();
 
@@ -51,43 +53,46 @@ function NotificationStack() {
 
 export default function App() {
   return (
+    // ThemeProvider musí být nejvenněji — ostatní providery čtou CSS proměnné, které Theme nastavuje
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
+          {/* Sticky header s navigací */}
           <header className="bg-primary shadow-nav sticky top-0 z-50">
             <div className="max-w-4xl mx-auto px-4 flex items-center h-14 gap-2">
               <span className="text-white font-bold text-xl mr-6 select-none">🍽️ Menza</span>
               <nav className="flex h-full">
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  `h-14 flex items-center justify-center px-4 min-w-27.5 text-sm font-semibold border-b-2 transition-colors ${
-                    isActive
-                      ? 'text-white border-white'
-                      : 'text-white/70 border-transparent hover:text-white hover:border-white/40'
-                  }`
-                }
-              >
-                Jídelníček
-              </NavLink>
-              <NavLink
-                to="/user"
-                className={({ isActive }) =>
-                  `h-14 flex items-center justify-center px-4 min-w-27.5 text-sm font-semibold border-b-2 transition-colors ${
-                    isActive
-                      ? 'text-white border-white'
-                      : 'text-white/70 border-transparent hover:text-white hover:border-white/40'
-                  }`
-                }
-              >
-                Uživatel
-              </NavLink>
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) =>
+                    `h-14 flex items-center justify-center px-4 min-w-27.5 text-sm font-semibold border-b-2 transition-colors ${
+                      isActive
+                        ? 'text-white border-white'
+                        : 'text-white/70 border-transparent hover:text-white hover:border-white/40'
+                    }`
+                  }
+                >
+                  Jídelníček
+                </NavLink>
+                <NavLink
+                  to="/user"
+                  className={({ isActive }) =>
+                    `h-14 flex items-center justify-center px-4 min-w-27.5 text-sm font-semibold border-b-2 transition-colors ${
+                      isActive
+                        ? 'text-white border-white'
+                        : 'text-white/70 border-transparent hover:text-white hover:border-white/40'
+                    }`
+                  }
+                >
+                  Uživatel
+                </NavLink>
               </nav>
               <ThemeToggle />
             </div>
           </header>
 
+          {/* Obsah stránky — max šířka 4xl pro všechny routes */}
           <main className="max-w-4xl mx-auto px-4 py-6">
             <Routes>
               <Route path="/" element={<MenuPage />} />

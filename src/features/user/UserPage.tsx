@@ -8,6 +8,7 @@ import { OrderHistory } from './OrderHistory';
 
 type User = { id: number; xname: string; balance: number };
 
+// Zobrazí login nebo registrační formulář podle aktuálního mode
 function AuthForm() {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -24,6 +25,7 @@ function AuthForm() {
       const data = await res.json();
       if (!res.ok) throw new Error((data as { error: string }).error ?? 'Chyba');
     },
+    // Po úspěchu invalidujeme ['me'] — UserPage přepne na Profile
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['me'] }); setError(''); },
     onError: (e: Error) => setError(e.message),
   });
@@ -35,11 +37,13 @@ function AuthForm() {
 
   return (
     <div className="flex flex-col items-center justify-start pt-8 min-h-[60vh]">
+      {/* Brand sekce */}
       <div className="text-center mb-6">
         <p className="text-5xl mb-2">🍽️</p>
         <p className="text-muted text-sm max-w-xs">Přihlaste se a objednejte si oběd jednoduše online.</p>
       </div>
 
+      {/* Login formulář */}
       {mode === 'login' ? (
         <div className="bg-surface rounded-xl shadow-card p-4 w-full max-w-sm space-y-3">
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -84,6 +88,7 @@ function AuthForm() {
           </button>
         </div>
       ) : (
+        /* Registrační formulář */
         <div className="bg-surface rounded-xl shadow-card p-4 w-full max-w-sm space-y-3">
           <div className="pb-3 border-b border-divider">
             <h2 className="text-xl font-bold text-text">Vytvořit nový účet</h2>
@@ -134,6 +139,7 @@ function AuthForm() {
   );
 }
 
+// Zobrazí karty profilu, nabíjení kreditu a historii objednávek
 function Profile({ user }: { user: User }) {
   return (
     <div className="space-y-4">
@@ -144,6 +150,7 @@ function Profile({ user }: { user: User }) {
   );
 }
 
+// Rozhoduje co zobrazit — loading spinner, přihlašovací formulář, nebo profil
 export function UserPage() {
   const { data: user, isLoading } = useQuery({
     queryKey: ['me'],

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { client } from '../../lib/client';
 
+// Výchozí počet zobrazených objednávek — zbytek se rozbalí na vyžádání
 const PAGE_SIZE = 5;
 
 export function OrderHistory() {

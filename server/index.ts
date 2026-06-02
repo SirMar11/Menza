@@ -9,9 +9,10 @@ import { loadUser } from './middleware/auth.js';
 import { seedMenu } from './db/seed.js';
 import { addClient, removeClient } from './ws.js';
 
+// Vloží ukázková jídla do DB pokud je prázdná — při každém startu serveru
 await seedMenu();
 
-// Chained definition — TypeScript zachytí plný typ všech routes
+// Chained zápis je nutný — TypeScript zachytí typy routes do AppType pouze z návratové hodnoty řetězce
 const app = new Hono()
   .use(cors({ origin: 'http://localhost:5173', credentials: true }))
   .use(loadUser)
@@ -19,7 +20,7 @@ const app = new Hono()
   .route('/user', userRoutes)
   .route('/menu', menuRoutes);
 
-// AppType musí být exportován před přidáním WS route (WS nepotřebuje RPC typy)
+// Exportovat před přidáním WS route — /ws endpoint nepotřebuje být součástí RPC typů frontendu
 export type AppType = typeof app;
 
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
