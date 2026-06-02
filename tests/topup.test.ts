@@ -10,7 +10,7 @@ function makeDb() {
   sqlite.exec(`
     CREATE TABLE users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
+      xname TEXT NOT NULL UNIQUE,
       salt TEXT NOT NULL,
       hash TEXT NOT NULL,
       token TEXT UNIQUE,
@@ -22,7 +22,7 @@ function makeDb() {
 
 test('topUp zvýší kredit uživatele', async (t) => {
   const db = makeDb();
-  await createUser(db, { name: 'Marek', password: 'heslo123' });
+  await createUser(db, { xname: 'Marek', password: 'heslo123' });
   const [before] = await db.select().from(users);
 
   await topUp(db, before.id, 100);
@@ -33,7 +33,7 @@ test('topUp zvýší kredit uživatele', async (t) => {
 
 test('topUp odmítne zápornou částku', async (t) => {
   const db = makeDb();
-  await createUser(db, { name: 'Marek', password: 'heslo123' });
+  await createUser(db, { xname: 'Marek', password: 'heslo123' });
   const [user] = await db.select().from(users);
 
   await t.throwsAsync(() => topUp(db, user.id, -50), {
@@ -43,7 +43,7 @@ test('topUp odmítne zápornou částku', async (t) => {
 
 test('topUp odmítne nulovou částku', async (t) => {
   const db = makeDb();
-  await createUser(db, { name: 'Marek', password: 'heslo123' });
+  await createUser(db, { xname: 'Marek', password: 'heslo123' });
   const [user] = await db.select().from(users);
 
   await t.throwsAsync(() => topUp(db, user.id, 0), {

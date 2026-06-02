@@ -5,12 +5,12 @@ import { db } from '../db/index.js';
 import { createUser, verifyPassword } from '../db/users.js';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Jméno musí mít alespoň 2 znaky'),
+  xname: z.string().min(2, 'Jméno musí mít alespoň 2 znaky'),
   password: z.string().min(6, 'Heslo musí mít alespoň 6 znaků'),
 });
 
 const loginSchema = z.object({
-  name: z.string().min(1),
+  xname: z.string().min(1),
   password: z.string().min(1),
 });
 
@@ -22,9 +22,16 @@ export const authRoutes = new Hono()
       return c.json({ error: result.error.issues[0]?.message ?? 'Neplatná data' }, 400);
     }
 
-    const token = await createUser(db, result.data);
-    setCookie(c, 'token', token, { httpOnly: true, path: '/' });
-    return c.json({ ok: true }, 201);
+    try {
+      const token = await createUser(db, result.data);
+      setCookie(c, 'token', token, { httpOnly: true, path: '/' });
+      return c.json({ ok: true }, 201);
+    } catch (e: any) {
+      if (e?.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+        return c.json({ error: 'Účet s tímto jménem již existuje' }, 409);
+      }
+      throw e;
+    }
   })
   .post('/login', async (c) => {
     const body = await c.req.json();

@@ -5,7 +5,7 @@ import { findUserByToken } from '../db/users.js';
 
 type User = {
   id: number;
-  name: string;
+  xname: string;
   balance: number;
   token: string | null;
 };

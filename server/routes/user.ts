@@ -19,7 +19,7 @@ export const userRoutes = new Hono<AuthEnv>()
   .get('/me', async (c) => {
     const user = c.get('user');
     if (!user) return c.json({ error: 'Nepřihlášen' }, 401);
-    return c.json({ id: user.id, name: user.name, balance: user.balance });
+    return c.json({ id: user.id, xname: user.xname, balance: user.balance });
   })
   .post('/topup', async (c) => {
     const user = c.get('user');

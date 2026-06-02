@@ -11,7 +11,7 @@ function makeDb() {
   sqlite.exec(`
     CREATE TABLE users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
+      xname TEXT NOT NULL UNIQUE,
       salt TEXT NOT NULL,
       hash TEXT NOT NULL,
       token TEXT UNIQUE,
@@ -38,7 +38,7 @@ function makeDb() {
 
 async function seed(db: ReturnType<typeof makeDb>) {
   await db.insert(users).values({
-    name: 'Marek', salt: 'x', hash: 'x', token: 'tok',
+    xname: 'Marek', salt: 'x', hash: 'x', token: 'tok',
   });
   await db.insert(menuItems).values({
     name: 'Svíčková', price: 120, dayOfWeek: 'monday', tags: '[]',

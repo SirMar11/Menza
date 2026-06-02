@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { client } from '../lib/client';
 
-type User = { id: number; name: string; balance: number };
+type User = { id: number; xname: string; balance: number };
 
 function AuthForm() {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [name, setName] = useState('');
+  const [xname, setXname] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -15,8 +15,8 @@ function AuthForm() {
     mutationFn: async () => {
       const res =
         mode === 'login'
-          ? await client.auth.login.$post({ json: { name, password } })
-          : await client.auth.register.$post({ json: { name, password } });
+          ? await client.auth.login.$post({ json: { xname, password } })
+          : await client.auth.register.$post({ json: { xname, password } });
       const data = await res.json();
       if (!res.ok) throw new Error((data as any).error ?? 'Chyba');
     },
@@ -44,7 +44,7 @@ function AuthForm() {
         </button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <input placeholder="Jméno" value={name} onChange={(e) => setName(e.target.value)} />
+        <input placeholder="Jméno" value={xname} onChange={(e) => setXname(e.target.value)} />
         <input
           placeholder="Heslo"
           type="password"
@@ -118,7 +118,7 @@ function Profile({ user }: { user: User }) {
         }}
       >
         <div>
-          <h2 style={{ margin: 0 }}>{user.name}</h2>
+          <h2 style={{ margin: 0 }}>{user.xname}</h2>
           <p style={{ margin: '0.25rem 0' }}>
             Kredit: <strong>{user.balance} Kč</strong>
           </p>

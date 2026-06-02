@@ -5,7 +5,7 @@ import { users } from './schema.js';
 
 export async function createUser(
   db: BetterSQLite3Database<any>,
-  input: { name: string; password: string }
+  input: { xname: string; password: string }
 ) {
   const salt = crypto.randomBytes(32).toString('hex');
   const hash = crypto
@@ -14,7 +14,7 @@ export async function createUser(
   const token = crypto.randomBytes(32).toString('hex');
 
   await db.insert(users).values({
-    name: input.name,
+    xname: input.xname,
     salt,
     hash,
     token,
@@ -33,9 +33,9 @@ export async function findUserByToken(
 
 export async function verifyPassword(
   db: BetterSQLite3Database<any>,
-  input: { name: string; password: string }
+  input: { xname: string; password: string }
 ) {
-  const [user] = await db.select().from(users).where(eq(users.name, input.name));
+  const [user] = await db.select().from(users).where(eq(users.xname, input.xname));
   if (!user) return null;
 
   const hash = crypto

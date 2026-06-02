@@ -11,7 +11,7 @@ function makeDb() {
   sqlite.exec(`
     CREATE TABLE users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
+      xname TEXT NOT NULL UNIQUE,
       salt TEXT NOT NULL,
       hash TEXT NOT NULL,
       token TEXT UNIQUE,
@@ -25,12 +25,12 @@ test('createUser uloží uživatele a hash se nerovná heslu', async (t) => {
   const db = makeDb();
   const password = 'tajneHeslo123';
 
-  await createUser(db, { name: 'Marek', password });
+  await createUser(db, { xname: 'Marek', password});
 
   const [user] = await db.select().from(users);
 
   t.truthy(user, 'uživatel byl uložen do databáze');
-  t.is(user.name, 'Marek');
+  t.is(user.xname, 'Marek');
   t.not(user.hash, password, 'hash se nesmí rovnat heslu');
   t.truthy(user.salt, 'salt musí existovat');
   t.truthy(user.hash, 'hash musí existovat');
