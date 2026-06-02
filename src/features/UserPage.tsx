@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { client } from '../../lib/client';
+import { client } from '../lib/client';
 
 type User = { id: number; name: string; balance: number };
 

@@ -14,12 +14,9 @@
     "test:fe": "vitest"
   },
   "ava": {
-    "extensions": [
-      "ts"
-    ],
-    "nodeArguments": [
-      "--import=tsx"
-    ]
+    "files": ["tests/**/*.test.ts"],
+    "extensions": ["ts"],
+    "nodeArguments": ["--import=tsx"]
   },
   "dependencies": {
     "@hono/node-server": "^2.0.4",

@@ -28,7 +28,7 @@ export const userRoutes = new Hono<AuthEnv>()
     const body = await c.req.json();
     const result = topUpSchema.safeParse(body);
     if (!result.success) {
-      return c.json({ error: result.error.flatten().fieldErrors }, 400);
+      return c.json({ error: result.error.issues[0]?.message ?? 'Neplatná data' }, 400);
     }
 
     await topUp(db, user.id, result.data.amount);
@@ -41,7 +41,7 @@ export const userRoutes = new Hono<AuthEnv>()
     const body = await c.req.json();
     const result = orderSchema.safeParse(body);
     if (!result.success) {
-      return c.json({ error: result.error.flatten().fieldErrors }, 400);
+      return c.json({ error: result.error.issues[0]?.message ?? 'Neplatná data' }, 400);
     }
 
     try {

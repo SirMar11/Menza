@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { client } from '../../lib/client';
+import { client } from '../lib/client';
+import { getCurrentDay } from '../lib/utils';
 
 const DAYS = [
   { value: 'monday', label: 'Pondělí' },
@@ -16,12 +17,6 @@ const TAGS = [
   { value: 'vegetarian', label: 'Vegetarián' },
   { value: 'bez-lepku', label: 'Bez lepku' },
 ];
-
-function getCurrentDay() {
-  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const day = days[new Date().getDay()];
-  return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].includes(day) ? day : 'monday';
-}
 
 export function MenuPage() {
   const queryClient = useQueryClient();

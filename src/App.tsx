@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
-import { MenuPage } from './features/menu/MenuPage';
-import { UserPage } from './features/menu/UserPage';
+import { MenuPage } from './features/MenuPage';
+import { UserPage } from './features/UserPage';
 
 const queryClient = new QueryClient();
 

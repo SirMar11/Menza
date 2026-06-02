@@ -19,7 +19,7 @@ export const authRoutes = new Hono()
     const body = await c.req.json();
     const result = registerSchema.safeParse(body);
     if (!result.success) {
-      return c.json({ error: result.error.flatten().fieldErrors }, 400);
+      return c.json({ error: result.error.issues[0]?.message ?? 'Neplatná data' }, 400);
     }
 
     const token = await createUser(db, result.data);
