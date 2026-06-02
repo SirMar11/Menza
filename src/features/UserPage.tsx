@@ -4,6 +4,25 @@ import { client } from '../lib/client';
 
 type User = { id: number; xname: string; balance: number };
 
+const inputCls =
+  'w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
+
+const btnPrimary =
+  'w-full bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover active:bg-primary-press disabled:opacity-60 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2';
+
+const btnSuccess =
+  'w-full bg-success text-white font-bold py-2.5 rounded-lg hover:bg-success-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2';
+
+function Divider({ label }: { label?: string }) {
+  return (
+    <div className="flex items-center gap-3 my-1">
+      <div className="flex-1 h-px bg-divider" />
+      {label && <span className="text-muted text-xs">{label}</span>}
+      <div className="flex-1 h-px bg-divider" />
+    </div>
+  );
+}
+
 function AuthForm() {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -27,35 +46,94 @@ function AuthForm() {
     onError: (e: Error) => setError(e.message),
   });
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    mutation.mutate();
+  };
+
   return (
-    <div style={{ maxWidth: '300px' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <button
-          onClick={() => setMode('login')}
-          style={{ fontWeight: mode === 'login' ? 'bold' : 'normal', marginRight: '0.5rem' }}
-        >
-          Přihlásit se
-        </button>
-        <button
-          onClick={() => setMode('register')}
-          style={{ fontWeight: mode === 'register' ? 'bold' : 'normal' }}
-        >
-          Registrovat
-        </button>
+    <div className="flex flex-col items-center justify-start pt-8 min-h-[60vh]">
+      {/* Brand */}
+      <div className="text-center mb-6">
+        <p className="text-5xl mb-2">🍽️</p>
+        <p className="text-muted text-sm max-w-xs">
+          Přihlaste se a objednejte si oběd jednoduše online.
+        </p>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <input placeholder="Jméno" value={xname} onChange={(e) => setXname(e.target.value)} />
-        <input
-          placeholder="Heslo"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p style={{ color: 'red', margin: 0 }}>{error}</p>}
-        <button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
-          {mode === 'login' ? 'Přihlásit se' : 'Registrovat'}
-        </button>
-      </div>
+
+      {mode === 'login' ? (
+        <div className="bg-surface rounded-xl shadow-card p-4 w-full max-w-sm space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              className={inputCls}
+              placeholder="Jméno"
+              value={xname}
+              onChange={(e) => setXname(e.target.value)}
+              autoComplete="username"
+            />
+            <input
+              className={inputCls}
+              placeholder="Heslo"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+            {error && (
+              <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-lg px-3 py-2">
+                {error}
+              </p>
+            )}
+            <button type="submit" className={btnPrimary} disabled={mutation.isPending}>
+              {mutation.isPending ? 'Přihlašuji…' : 'Přihlásit se'}
+            </button>
+          </form>
+
+          <Divider label="nebo" />
+
+          <button className={btnSuccess} onClick={() => { setMode('register'); setError(''); }}>
+            Vytvořit nový účet
+          </button>
+        </div>
+      ) : (
+        <div className="bg-surface rounded-xl shadow-card p-4 w-full max-w-sm space-y-3">
+          <div className="pb-3 border-b border-divider">
+            <h2 className="text-xl font-bold text-text">Vytvořit nový účet</h2>
+            <p className="text-sm text-muted mt-0.5">Je to rychlé a jednoduché.</p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              className={inputCls}
+              placeholder="Jméno (min. 2 znaky)"
+              value={xname}
+              onChange={(e) => setXname(e.target.value)}
+              autoComplete="username"
+            />
+            <input
+              className={inputCls}
+              placeholder="Heslo (min. 6 znaků)"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+            {error && (
+              <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-lg px-3 py-2">
+                {error}
+              </p>
+            )}
+            <button type="submit" className={btnSuccess} disabled={mutation.isPending}>
+              {mutation.isPending ? 'Registruji…' : 'Registrovat'}
+            </button>
+          </form>
+          <button
+            className="w-full text-sm text-muted hover:text-text transition-colors py-1"
+            onClick={() => { setMode('login'); setError(''); }}
+          >
+            ← Zpět na přihlášení
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -66,9 +144,7 @@ function Profile({ user }: { user: User }) {
   const [amountError, setAmountError] = useState('');
 
   const logout = useMutation({
-    mutationFn: async () => {
-      await client.auth.logout.$post({});
-    },
+    mutationFn: async () => { await client.auth.logout.$post({}); },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -89,12 +165,10 @@ function Profile({ user }: { user: User }) {
     onError: (e: Error) => setAmountError(e.message),
   });
 
-  const handleTopUp = () => {
+  const handleTopUp = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const val = parseFloat(amount);
-    if (!val || val <= 0) {
-      setAmountError('Zadejte kladnou částku');
-      return;
-    }
+    if (!val || val <= 0) { setAmountError('Zadejte kladnou částku'); return; }
     topup.mutate(val);
   };
 
@@ -108,53 +182,75 @@ function Profile({ user }: { user: User }) {
   });
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
-        <div>
-          <h2 style={{ margin: 0 }}>{user.xname}</h2>
-          <p style={{ margin: '0.25rem 0' }}>
-            Kredit: <strong>{user.balance} Kč</strong>
-          </p>
+    <div className="space-y-4 max-w-lg">
+      {/* Profile card */}
+      <div className="bg-surface rounded-xl shadow-card p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xl font-bold select-none">
+            {user.xname.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <p className="font-semibold text-text">{user.xname}</p>
+            <p className="text-sm text-muted">
+              Kredit: <span className="text-primary font-bold">{user.balance} Kč</span>
+            </p>
+          </div>
         </div>
-        <button onClick={() => logout.mutate()}>Odhlásit se</button>
+        <button
+          onClick={() => logout.mutate()}
+          disabled={logout.isPending}
+          className="text-sm text-muted hover:text-danger transition-colors font-medium px-3 py-1.5 rounded-lg hover:bg-danger/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+        >
+          {logout.isPending ? '…' : 'Odhlásit se'}
+        </button>
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h3>Nabít kredit</h3>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+      {/* Top-up card */}
+      <div className="bg-surface rounded-xl shadow-card p-4">
+        <h3 className="font-semibold text-text mb-3">Nabít kredit</h3>
+        <form onSubmit={handleTopUp} className="flex gap-2">
           <input
             type="number"
             min="1"
+            step="any"
             placeholder="Částka (Kč)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            style={{ width: '120px' }}
+            className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
           />
-          <button onClick={handleTopUp} disabled={topup.isPending}>
-            Nabít
+          <button
+            type="submit"
+            disabled={topup.isPending}
+            className="bg-primary text-white font-semibold px-5 py-2 rounded-lg hover:bg-primary-hover active:bg-primary-press disabled:opacity-60 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 whitespace-nowrap"
+          >
+            {topup.isPending ? '…' : 'Nabít'}
           </button>
-        </div>
-        {amountError && <p style={{ color: 'red', margin: '0.25rem 0' }}>{amountError}</p>}
+        </form>
+        {amountError && (
+          <p className="text-sm text-danger mt-2">{amountError}</p>
+        )}
       </div>
 
-      <div>
-        <h3>Historie objednávek</h3>
-        {orders.length === 0 && <p style={{ color: '#999' }}>Zatím žádné objednávky</p>}
-        {orders.map((order) => (
-          <div key={order.id} style={{ borderBottom: '1px solid #eee', padding: '0.5rem 0' }}>
-            <span>{order.itemName}</span>
-            <span style={{ float: 'right', color: '#666' }}>
-              {order.pricePaid} Kč · {new Date(order.createdAt * 1000).toLocaleDateString('cs-CZ')}
-            </span>
-          </div>
-        ))}
+      {/* Order history */}
+      <div className="bg-surface rounded-xl shadow-card p-4">
+        <h3 className="font-semibold text-text mb-3">Historie objednávek</h3>
+        {orders.length === 0 ? (
+          <p className="text-sm text-muted text-center py-4">Zatím žádné objednávky.</p>
+        ) : (
+          <ul className="divide-y divide-divider">
+            {orders.map((order) => (
+              <li key={order.id} className="flex justify-between items-center py-2.5 text-sm">
+                <span className="text-text font-medium">{order.itemName}</span>
+                <div className="text-right">
+                  <span className="text-primary font-semibold">{order.pricePaid} Kč</span>
+                  <p className="text-xs text-muted">
+                    {new Date(order.createdAt * 1000).toLocaleDateString('cs-CZ')}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
@@ -171,6 +267,13 @@ export function UserPage() {
     retry: false,
   });
 
-  if (isLoading) return <p>Načítám...</p>;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center pt-16">
+        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return user ? <Profile user={user} /> : <AuthForm />;
 }

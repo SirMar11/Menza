@@ -4,18 +4,18 @@ import { client } from '../lib/client';
 import { getCurrentDay } from '../lib/utils';
 
 const DAYS = [
-  { value: 'monday', label: 'Pondělí' },
-  { value: 'tuesday', label: 'Úterý' },
+  { value: 'monday',    label: 'Pondělí' },
+  { value: 'tuesday',   label: 'Úterý' },
   { value: 'wednesday', label: 'Středa' },
-  { value: 'thursday', label: 'Čtvrtek' },
-  { value: 'friday', label: 'Pátek' },
+  { value: 'thursday',  label: 'Čtvrtek' },
+  { value: 'friday',    label: 'Pátek' },
 ];
 
 const TAGS = [
-  { value: '', label: 'Vše' },
-  { value: 'vegan', label: 'Vegan' },
-  { value: 'vegetarian', label: 'Vegetarián' },
-  { value: 'bez-lepku', label: 'Bez lepku' },
+  { value: '',          label: 'Vše' },
+  { value: 'vegan',     label: '🌱 Vegan' },
+  { value: 'vegetarian',label: '🥗 Vegetarián' },
+  { value: 'bez-lepku', label: '🌾 Bez lepku' },
 ];
 
 export function MenuPage() {
@@ -52,84 +52,105 @@ export function MenuPage() {
   });
 
   return (
-    <div>
-      <div style={{ marginBottom: '1rem' }}>
+    <div className="space-y-4">
+      {/* Day selector */}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         {DAYS.map((d) => (
           <button
             key={d.value}
             onClick={() => setDay(d.value)}
-            style={{ marginRight: '0.5rem', fontWeight: day === d.value ? 'bold' : 'normal' }}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              day === d.value
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-surface text-muted hover:bg-divider'
+            }`}
           >
             {d.label}
           </button>
         ))}
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
+      {/* Tag filter */}
+      <div className="flex gap-2 flex-wrap">
         {TAGS.map((t) => (
           <button
             key={t.value}
             onClick={() => setTag(t.value)}
-            style={{ marginRight: '0.5rem', fontWeight: tag === t.value ? 'bold' : 'normal' }}
+            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              tag === t.value
+                ? 'bg-primary/10 text-primary border-primary/30 font-semibold'
+                : 'bg-surface text-muted border-border hover:border-primary/40 hover:text-primary'
+            }`}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      {isLoading && <p>Načítám...</p>}
+      {/* Items */}
+      {isLoading && (
+        <div className="space-y-3">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="bg-surface rounded-xl shadow-card p-4 animate-pulse">
+              <div className="h-4 bg-divider rounded w-1/2 mb-2" />
+              <div className="h-3 bg-divider rounded w-3/4" />
+            </div>
+          ))}
+        </div>
+      )}
 
-      {items.map((item) => (
-        <div
-          key={item.id}
-          style={{
-            border: '1px solid #ccc',
-            padding: '1rem',
-            marginBottom: '0.5rem',
-            borderRadius: '4px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <strong>{item.name}</strong>
-              {item.description && (
-                <p style={{ margin: '0.25rem 0', color: '#666' }}>{item.description}</p>
-              )}
-              <div>
-                {item.tags.map((t) => (
-                  <span
-                    key={t}
-                    style={{
-                      background: '#e0f0e0',
-                      padding: '0.1rem 0.4rem',
-                      borderRadius: '3px',
-                      marginRight: '0.25rem',
-                      fontSize: '0.8rem',
-                    }}
+      {!isLoading && items.length === 0 && (
+        <div className="text-center py-12 text-muted">
+          <p className="text-4xl mb-3">🍽️</p>
+          <p className="font-semibold">Žádná jídla nenalezena</p>
+          <p className="text-sm mt-1">Zkus jiný den nebo odeber filtr.</p>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="bg-surface rounded-xl shadow-card p-4 hover:shadow-dropdown transition-shadow"
+          >
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-text">{item.name}</p>
+                {item.description && (
+                  <p className="text-sm text-muted mt-0.5 truncate">{item.description}</p>
+                )}
+                {item.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {item.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <span className="text-primary font-bold text-lg">{item.price} Kč</span>
+                {user ? (
+                  <button
+                    onClick={() => buy.mutate(item.id)}
+                    disabled={buy.isPending}
+                    className="bg-primary text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-primary-hover active:bg-primary-press disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
-                    {t}
-                  </span>
-                ))}
+                    {buy.isPending ? '…' : 'Koupit'}
+                  </button>
+                ) : (
+                  <span className="text-xs text-muted italic">Přihlaste se</span>
+                )}
               </div>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <strong>{item.price} Kč</strong>
-              <br />
-              {user ? (
-                <button
-                  onClick={() => buy.mutate(item.id)}
-                  disabled={buy.isPending}
-                  style={{ marginTop: '0.5rem' }}
-                >
-                  Koupit
-                </button>
-              ) : (
-                <small style={{ color: '#999' }}>Přihlaste se</small>
-              )}
-            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
