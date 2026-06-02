@@ -121,9 +121,9 @@ Projekt je záměrně zjednodušený a přímočarý.
 
 ---
 
-## Jak to rozjet po naklonování
+## Jak to rozjet
 
-### 1. Naklonuj repo a nainstaluj závislosti
+### 1. Klonování repa a instalace závislostí
 
 ```bash
 git clone <url>
@@ -131,7 +131,7 @@ cd react-node
 npm install
 ```
 
-### 2. Vytvoř databázi
+### 2. Vytvoření databáze
 
 ```bash
 npm run db:push
@@ -139,9 +139,9 @@ npm run db:push
 
 Tohle vytvoří soubor `menza.db` s celým schématem. Seed data (jídla na celý týden) se načtou automaticky při prvním startu serveru.
 
-### 3. Spusť backend a frontend
+### 3. Spuštění backendu a frontendu
 
-Potřebuješ **dva terminály** — backend a frontend běží odděleně:
+**dva terminály** — backend a frontend běží odděleně:
 
 ```bash
 # Terminál 1 — backend (port 3000)
@@ -153,9 +153,9 @@ npm run dev
 
 Frontend je na `http://localhost:5173`, backend API na `http://localhost:3000`.
 
-### 4. Otestuj real-time notifikace
+### 4. Real-time notifikace
 
-Otevři dvě okna prohlížeče — jedno normální, jedno incognito (nebo jiný prohlížeč). Zaregistruj se v každém jako jiný uživatel, nakup jídlo a sleduj toast notifikace v druhém okně.
+2 okna prohlížeče — jedno normální, jedno incognito (nebo jiný prohlížeč). Po registraci/přihlášení v každém jako jiný uživatel a po nákupu jídla se objeví toast notifikace o nákupu v obou oknech.
 
 ---
 
