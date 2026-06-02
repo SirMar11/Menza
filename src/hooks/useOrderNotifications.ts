@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { WS_URL } from '../lib/config';
 
 export type OrderNotification = {
   id: number;
@@ -15,7 +16,7 @@ export function useOrderNotifications() {
     let intentionallyClosed = false;
 
     const connect = () => {
-      ws = new WebSocket('ws://localhost:3000/ws');
+      ws = new WebSocket(WS_URL);
 
       ws.onmessage = (e) => {
         try {

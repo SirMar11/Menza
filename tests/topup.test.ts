@@ -1,24 +1,7 @@
 import test from 'ava';
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { users } from '../server/db/schema.js';
 import { createUser, topUp } from '../server/db/users.js';
-
-function makeDb() {
-  const sqlite = new Database(':memory:');
-  const db = drizzle(sqlite);
-  sqlite.exec(`
-    CREATE TABLE users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      xname TEXT NOT NULL UNIQUE,
-      salt TEXT NOT NULL,
-      hash TEXT NOT NULL,
-      token TEXT UNIQUE,
-      balance REAL NOT NULL DEFAULT 0
-    )
-  `);
-  return db;
-}
+import { makeDb } from './helpers.js';
 
 test('topUp zvýší kredit uživatele', async (t) => {
   const db = makeDb();

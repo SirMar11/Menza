@@ -22,7 +22,7 @@ function AuthForm() {
           ? await client.auth.login.$post({ json: { xname, password } })
           : await client.auth.register.$post({ json: { xname, password } });
       const data = await res.json();
-      if (!res.ok) throw new Error((data as any).error ?? 'Chyba');
+      if (!res.ok) throw new Error((data as { error: string }).error ?? 'Chyba');
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['me'] }); setError(''); },
     onError: (e: Error) => setError(e.message),
@@ -43,21 +43,29 @@ function AuthForm() {
       {mode === 'login' ? (
         <div className="bg-surface rounded-xl shadow-card p-4 w-full max-w-sm space-y-3">
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input
-              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-              placeholder="Jméno"
-              value={xname}
-              onChange={(e) => setXname(e.target.value)}
-              autoComplete="username"
-            />
-            <input
-              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-              placeholder="Heslo"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+            <div>
+              <label htmlFor="login-xname" className="sr-only">Jméno</label>
+              <input
+                id="login-xname"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="Jméno"
+                value={xname}
+                onChange={(e) => setXname(e.target.value)}
+                autoComplete="username"
+              />
+            </div>
+            <div>
+              <label htmlFor="login-password" className="sr-only">Heslo</label>
+              <input
+                id="login-password"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="Heslo"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
             {error && <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-lg px-3 py-2">{error}</p>}
             <button
               type="submit"
@@ -82,21 +90,29 @@ function AuthForm() {
             <p className="text-sm text-muted mt-0.5">Je to rychlé a jednoduché.</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input
-              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-              placeholder="Jméno (min. 2 znaky)"
-              value={xname}
-              onChange={(e) => setXname(e.target.value)}
-              autoComplete="username"
-            />
-            <input
-              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-              placeholder="Heslo (min. 6 znaků)"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
+            <div>
+              <label htmlFor="register-xname" className="sr-only">Jméno</label>
+              <input
+                id="register-xname"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="Jméno (min. 2 znaky)"
+                value={xname}
+                onChange={(e) => setXname(e.target.value)}
+                autoComplete="username"
+              />
+            </div>
+            <div>
+              <label htmlFor="register-password" className="sr-only">Heslo</label>
+              <input
+                id="register-password"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-surface placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="Heslo (min. 6 znaků)"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
             {error && <p className="text-sm text-danger bg-danger/8 border border-danger/20 rounded-lg px-3 py-2">{error}</p>}
             <button
               type="submit"

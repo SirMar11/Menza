@@ -1,31 +1,13 @@
 import test from 'ava';
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { users } from '../server/db/schema.js';
-import { createUser } from '../server/db/users.js';
-import { verifyPassword } from '../server/db/users.js';
-
-function makeDb() {
-  const sqlite = new Database(':memory:');
-  const db = drizzle(sqlite);
-  sqlite.exec(`
-    CREATE TABLE users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      xname TEXT NOT NULL UNIQUE,
-      salt TEXT NOT NULL,
-      hash TEXT NOT NULL,
-      token TEXT UNIQUE,
-      balance REAL NOT NULL DEFAULT 0
-    )
-  `);
-  return db;
-}
+import { createUser, verifyPassword } from '../server/db/users.js';
+import { makeDb } from './helpers.js';
 
 test('createUser uloží uživatele a hash se nerovná heslu', async (t) => {
   const db = makeDb();
   const password = 'tajneHeslo123';
 
-  await createUser(db, { xname: 'Marek', password});
+  await createUser(db, { xname: 'Marek', password });
 
   const [user] = await db.select().from(users);
 
@@ -38,19 +20,19 @@ test('createUser uloží uživatele a hash se nerovná heslu', async (t) => {
 
 test('verifyPassword vrátí uživatele při správném hesle', async (t) => {
   const db = makeDb();
-  await createUser(db, { name: 'Marek', password: 'tajneHeslo123' });
+  await createUser(db, { xname: 'Marek', password: 'tajneHeslo123' });
 
-  const user = await verifyPassword(db, { name: 'Marek', password: 'tajneHeslo123' });
+  const user = await verifyPassword(db, { xname: 'Marek', password: 'tajneHeslo123' });
 
   t.truthy(user, 'funkce vrátí uživatele');
-  t.is(user?.name, 'Marek');
+  t.is(user?.xname, 'Marek');
 });
 
 test('verifyPassword vrátí null při špatném hesle', async (t) => {
   const db = makeDb();
-  await createUser(db, { name: 'Marek', password: 'tajneHeslo123' });
+  await createUser(db, { xname: 'Marek', password: 'tajneHeslo123' });
 
-  const user = await verifyPassword(db, { name: 'Marek', password: 'spatneHeslo' });
+  const user = await verifyPassword(db, { xname: 'Marek', password: 'spatneHeslo' });
 
   t.is(user, null, 'špatné heslo musí vrátit null');
 });

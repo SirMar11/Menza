@@ -23,6 +23,7 @@ export function MenuPage() {
   const queryClient = useQueryClient();
   const [day, setDay] = useState(getCurrentDay());
   const [tag, setTag] = useState('');
+  const [buyError, setBuyError] = useState<string | null>(null);
 
   const { data: user } = useQuery({
     queryKey: ['me'],
@@ -45,11 +46,14 @@ export function MenuPage() {
   const buy = useMutation({
     mutationFn: async (menuItemId: number) => {
       const res = await client.user.orders.$post({ json: { menuItemId } });
-      const data = await res.json();
-      if (!res.ok) throw new Error((data as any).error);
+      const data = await res.json() as { error: string };
+      if (!res.ok) throw new Error(data.error);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['me'] }),
-    onError: (e: Error) => alert(e.message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      setBuyError(null);
+    },
+    onError: (e: Error) => setBuyError(e.message),
   });
 
   return (
@@ -83,6 +87,13 @@ export function MenuPage() {
           </button>
         ))}
       </div>
+
+      {buyError && (
+        <div className="flex items-center justify-between bg-danger/8 border border-danger/20 rounded-lg px-4 py-2.5 text-sm text-danger">
+          <span>{buyError}</span>
+          <button onClick={() => setBuyError(null)} className="ml-2 font-bold hover:opacity-70 text-base leading-none">×</button>
+        </div>
+      )}
 
       {isLoading && (
         <div className="space-y-3">

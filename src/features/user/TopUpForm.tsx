@@ -10,8 +10,8 @@ export function TopUpForm() {
   const topup = useMutation({
     mutationFn: async (val: number) => {
       const res = await client.user.topup.$post({ json: { amount: val } });
-      const data = await res.json();
-      if (!res.ok) throw new Error((data as any).error ?? 'Chyba');
+      const data = await res.json() as { error: string };
+      if (!res.ok) throw new Error(data.error ?? 'Chyba');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] });

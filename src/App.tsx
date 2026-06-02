@@ -57,6 +57,7 @@ export default function App() {
           <header className="bg-primary shadow-nav sticky top-0 z-50">
             <div className="max-w-4xl mx-auto px-4 flex items-center h-14 gap-2">
               <span className="text-white font-bold text-xl mr-6 select-none">🍽️ Menza</span>
+              <nav className="flex h-full">
               <NavLink
                 to="/"
                 end
@@ -82,6 +83,7 @@ export default function App() {
               >
                 Uživatel
               </NavLink>
+              </nav>
               <ThemeToggle />
             </div>
           </header>

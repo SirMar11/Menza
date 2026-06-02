@@ -1,58 +1,31 @@
-import crypto from 'node:crypto';
 import { eq, sql } from 'drizzle-orm';
-import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { users } from './schema.js';
+import type { AppDb } from './types.js';
+import { hashPassword, verifyHash, generateToken } from '../auth/hash.js';
 
-export async function createUser(
-  db: BetterSQLite3Database<any>,
-  input: { xname: string; password: string }
-) {
-  const salt = crypto.randomBytes(32).toString('hex');
-  const hash = crypto
-    .pbkdf2Sync(input.password, salt, 100_000, 64, 'sha512')
-    .toString('hex');
-  const token = crypto.randomBytes(32).toString('hex');
+export async function createUser(db: AppDb, input: { xname: string; password: string }) {
+  const { salt, hash } = hashPassword(input.password);
+  const token = generateToken();
 
-  await db.insert(users).values({
-    xname: input.xname,
-    salt,
-    hash,
-    token,
-  });
+  await db.insert(users).values({ xname: input.xname, salt, hash, token });
 
   return token;
 }
 
-export async function findUserByToken(
-  db: BetterSQLite3Database<any>,
-  token: string
-) {
+export async function findUserByToken(db: AppDb, token: string) {
   const [user] = await db.select().from(users).where(eq(users.token, token));
   return user ?? null;
 }
 
-export async function verifyPassword(
-  db: BetterSQLite3Database<any>,
-  input: { xname: string; password: string }
-) {
+export async function verifyPassword(db: AppDb, input: { xname: string; password: string }) {
   const [user] = await db.select().from(users).where(eq(users.xname, input.xname));
   if (!user) return null;
 
-  const hash = crypto
-    .pbkdf2Sync(input.password, user.salt, 100_000, 64, 'sha512')
-    .toString('hex');
-
-  return hash === user.hash ? user : null;
+  return verifyHash(input.password, user.salt, user.hash) ? user : null;
 }
 
-export async function topUp(
-  db: BetterSQLite3Database<any>,
-  userId: number,
-  amount: number
-) {
-  if (amount <= 0) {
-    throw new Error('Částka musí být kladná');
-  }
+export async function topUp(db: AppDb, userId: number, amount: number) {
+  if (amount <= 0) throw new Error('Částka musí být kladná');
 
   await db
     .update(users)

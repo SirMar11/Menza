@@ -1,12 +1,8 @@
 import { eq, sql } from 'drizzle-orm';
-import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { users, menuItems, orders } from './schema.js';
+import type { AppDb } from './types.js';
 
-export async function placeOrder(
-  db: BetterSQLite3Database<any>,
-  userId: number,
-  menuItemId: number
-) {
+export async function placeOrder(db: AppDb, userId: number, menuItemId: number) {
   const [user] = await db.select().from(users).where(eq(users.id, userId));
   const [item] = await db.select().from(menuItems).where(eq(menuItems.id, menuItemId));
 
