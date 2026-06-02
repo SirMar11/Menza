@@ -4,7 +4,7 @@ import { db } from '../db/index.js';
 import { menuItems } from '../db/schema.js';
 
 export const menuRoutes = new Hono()
-  .get('/', async (c) => {
+  .get('/list', async (c) => {
     const day = c.req.query('day');
     const tag = c.req.query('tag');
 

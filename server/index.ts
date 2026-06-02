@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/user.js';
 import { menuRoutes } from './routes/menu.js';
@@ -9,6 +10,7 @@ import { seedMenu } from './db/seed.js';
 await seedMenu();
 
 const app = new Hono()
+  .use(cors({ origin: 'http://localhost:5173', credentials: true }))
   .use(loadUser)
   .route('/auth', authRoutes)
   .route('/user', userRoutes)
