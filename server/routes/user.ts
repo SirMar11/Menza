@@ -6,6 +6,7 @@ import { topUp } from '../db/users.js';
 import { placeOrder } from '../db/orders.js';
 import { orders, menuItems } from '../db/schema.js';
 import type { AuthEnv } from '../middleware/auth.js';
+import { broadcast } from '../ws.js';
 
 const topUpSchema = z.object({
   amount: z.number().positive('Částka musí být kladné číslo'),
@@ -45,7 +46,8 @@ export const userRoutes = new Hono<AuthEnv>()
     }
 
     try {
-      await placeOrder(db, user.id, result.data.menuItemId);
+      const { itemName } = await placeOrder(db, user.id, result.data.menuItemId);
+      broadcast({ type: 'order', xname: user.xname, itemName });
       return c.json({ ok: true }, 201);
     } catch (e: any) {
       return c.json({ error: e.message }, 400);

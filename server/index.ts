@@ -1,14 +1,17 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { createNodeWebSocket } from '@hono/node-ws';
 import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/user.js';
 import { menuRoutes } from './routes/menu.js';
 import { loadUser } from './middleware/auth.js';
 import { seedMenu } from './db/seed.js';
+import { addClient, removeClient } from './ws.js';
 
 await seedMenu();
 
+// Chained definition — TypeScript zachytí plný typ všech routes
 const app = new Hono()
   .use(cors({ origin: 'http://localhost:5173', credentials: true }))
   .use(loadUser)
@@ -16,8 +19,18 @@ const app = new Hono()
   .route('/user', userRoutes)
   .route('/menu', menuRoutes);
 
-serve({ fetch: app.fetch, port: 3000 }, () => {
+// AppType musí být exportován před přidáním WS route (WS nepotřebuje RPC typy)
+export type AppType = typeof app;
+
+const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
+
+app.get('/ws', upgradeWebSocket(() => ({
+  onOpen(_, ws) { addClient(ws); },
+  onClose(_, ws) { removeClient(ws); },
+})));
+
+const server = serve({ fetch: app.fetch, port: 3000 }, () => {
   console.log('Server běží na http://localhost:3000');
 });
 
-export type AppType = typeof app;
+injectWebSocket(server);

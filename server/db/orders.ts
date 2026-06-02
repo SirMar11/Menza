@@ -26,4 +26,6 @@ export async function placeOrder(
       createdAt: Math.floor(Date.now() / 1000),
     }).run();
   });
+
+  return { itemName: item.name };
 }
